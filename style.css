@@ -92,6 +92,22 @@ nav ul li:hover, nav ul button:hover {
   color: #ff6600;
 }
 
+.btn-assistir {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 6px 12px;
+  background-color: #ff6600;
+  color: #fff;
+  border-radius: 5px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.btn-assistir:hover {
+  background-color: #e65300;
+}
+
 /* Formulário admin */
 form#formFilme {
   margin: 30px 20px;
