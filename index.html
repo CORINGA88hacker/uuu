@@ -5,10 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>OrangeFlix</title>
   <link rel="stylesheet" href="style.css" />
+  <!-- Firebase libs compat -->
   <script defer src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/9.22.1/firebase-storage-compat.js"></script>
+
   <script defer src="firebase.js"></script>
   <script defer src="script.js"></script>
 </head>
@@ -36,13 +38,25 @@
     <div class="slide" id="destaques"></div>
   </section>
 
+  <section class="categoria">
+    <h2>📺 Séries</h2>
+    <div class="slide" id="series"></div>
+  </section>
+
+  <section class="categoria">
+    <h2>🎬 Filmes</h2>
+    <div class="slide" id="filmes"></div>
+  </section>
+
   <form id="formFilme">
-    <h3>Adicionar Filme (Admin)</h3>
+    <h3>Adicionar Filme/Série (Admin)</h3>
     <input type="text" id="titulo" placeholder="Título" required />
     <input type="number" id="ano" placeholder="Ano" required />
-    <input type="text" id="categoria" placeholder="lancamento ou destaque" required />
+    <input type="text" id="categoria" placeholder="lancamento, destaque, serie ou filme" required />
+    <input type="text" id="temporada" placeholder="Temporada (só para séries)" />
+    <input type="text" id="link" placeholder="Link do filme ou episódio" required />
     <input type="file" id="capa" required />
-    <button type="submit">Salvar Filme</button>
+    <button type="submit">Salvar</button>
   </form>
 </body>
 </html>
