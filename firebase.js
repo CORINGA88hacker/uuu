@@ -1,4 +1,4 @@
-// firebase.js
+// Configure com seu próprio firebaseConfig
 const firebaseConfig = {
   apiKey: "AIzaSyBHIc2E4XwRO5FXo4uHlTQVRArOis73MjE",
   authDomain: "projeto-deus-yato-928-sk.firebaseapp.com",
