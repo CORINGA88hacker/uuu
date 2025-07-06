@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OrangeFlix</title>
+  <link rel="stylesheet" href="style.css">
+  <script defer src="firebase.js"></script>
+  <script defer src="script.js"></script>
+</head>
+<body>
+  <header>
+    <h1 class="logo">🍊 OrangeFlix</h1>
+    <nav>
+      <ul>
+        <li onclick="scrollToSection('lancamentos')">Lançamentos</li>
+        <li onclick="scrollToSection('destaques')">Destaques</li>
+        <li onclick="scrollToSection('series')">Séries</li>
+        <li onclick="scrollToSection('filmes')">Filmes</li>
+        <li><button onclick="loginGoogle()">Entrar com Google</button></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section class="categoria">
+    <h2>🔥 Lançamentos</h2>
+    <div class="slide" id="lancamentos"></div>
+  </section>
+
+  <section class="categoria">
+    <h2>⭐ Destaques</h2>
+    <div class="slide" id="destaques"></div>
+  </section>
+
+  <form id="formFilme">
+    <h3>Adicionar Filme (Admin)</h3>
+    <input type="text" id="titulo" placeholder="Título" required>
+    <input type="number" id="ano" placeholder="Ano" required>
+    <input type="text" id="categoria" placeholder="lancamento ou destaque" required>
+    <input type="file" id="capa" required>
+    <button type="submit">Salvar Filme</button>
+  </form>
+</body>
+</html>
