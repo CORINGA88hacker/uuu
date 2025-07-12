@@ -14,6 +14,15 @@
     <h1>MangáVerse</h1>
   </header>
 
+  <section id="login">
+    <h2>Login do Admin</h2>
+    <div class="admin-form">
+      <input type="email" id="email" placeholder="Email do Admin" />
+      <input type="password" id="senha" placeholder="Senha" />
+      <button onclick="fazerLogin()">Entrar</button>
+    </div>
+  </section>
+
   <section id="slide">
     <h2>Slide</h2>
     <div class="slider" id="slider"></div>
@@ -34,7 +43,7 @@
     <div class="manga-container" id="populares-list"></div>
   </section>
 
-  <section id="admin">
+  <section id="admin" style="display:none;">
     <h2>Painel Admin</h2>
     <div class="admin-form">
       <input type="text" id="titulo" placeholder="Título do Mangá" />
@@ -47,6 +56,7 @@
       <input type="text" id="capitulos" placeholder="Capítulos (ex: 1|url,2|url)" />
       <label><input type="checkbox" id="slide" /> Incluir no Slide</label>
       <button onclick="adicionarManga()">Adicionar Mangá</button>
+      <button onclick="fazerLogout()">Sair</button>
     </div>
   </section>
 
