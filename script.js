@@ -35,29 +35,44 @@ function logar() {
     .catch(e => alert(e.message));
 }
 
-// Upload de vídeo
+// Upload de vídeo chamado por enviarVideo()
 function uploadVideo(file) {
   const user = auth.currentUser;
-  if (!user) return alert("Faça login");
+  if (!user) {
+    alert("Você precisa estar logado para enviar vídeos.");
+    return;
+  }
 
-  const ref = storage.ref("videos/" + file.name);
-  ref.put(file).then(snapshot => snapshot.ref.getDownloadURL())
-    .then(url => {
-      const videoData = {
-        url,
-        autor: user.email,
-        curtidas: 0,
-        timestamp: Date.now()
-      };
-      db.ref("videos").push(videoData);
-      alert("Vídeo enviado!");
-      carregarFeed();
-    });
+  const videoRef = storage.ref("videos/" + Date.now() + "_" + file.name);
+  const uploadTask = videoRef.put(file);
+
+  uploadTask.on('state_changed', 
+    (snapshot) => {
+      // Aqui poderia mostrar progresso de upload se quiser
+    }, 
+    (error) => {
+      alert("Erro no upload: " + error.message);
+    }, 
+    () => {
+      uploadTask.snapshot.ref.getDownloadURL().then((url) => {
+        const videoData = {
+          url,
+          autor: user.email,
+          curtidas: 0,
+          timestamp: Date.now()
+        };
+        db.ref("videos").push(videoData);
+        alert("Vídeo enviado com sucesso!");
+        carregarFeed();
+        // Limpa input após upload
+        document.getElementById("videoInput").value = "";
+      });
+    }
+  );
 }
 
-// Mostrar feed
 function carregarFeed() {
-  db.ref("videos").once("value", snapshot => {
+  db.ref("videos").orderByChild("timestamp").once("value", snapshot => {
     const feed = document.getElementById("feed");
     feed.innerHTML = "";
 
@@ -77,13 +92,25 @@ function carregarFeed() {
         </div>
       `;
 
-      feed.appendChild(container);
+      feed.prepend(container); // mostra vídeos mais recentes em cima
     });
   });
 }
 
-// Curtir vídeo
 function curtir(key) {
   const likeRef = db.ref(`videos/${key}/curtidas`);
   likeRef.transaction(curtidas => (curtidas || 0) + 1);
 }
+
+// Mantém o usuário logado e atualiza UI
+firebase.auth().onAuthStateChanged(user => {
+  if (user) {
+    document.getElementById("auth").style.display = "none";
+    document.getElementById("painel").style.display = "block";
+    document.getElementById("userInfo").innerText = `Logado como: ${user.email}`;
+    carregarFeed();
+  } else {
+    document.getElementById("auth").style.display = "flex";
+    document.getElementById("painel").style.display = "none";
+  }
+});
