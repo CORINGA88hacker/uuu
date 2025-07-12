@@ -1,62 +1,41 @@
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>OrangeFlix</title>
-  <link rel="stylesheet" href="style.css" />
-  <!-- Firebase libs compat -->
-  <script defer src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-  <script defer src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-  <script defer src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-  <script defer src="https://www.gstatic.com/firebasejs/9.22.1/firebase-storage-compat.js"></script>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MangáVerse</title>
+  <link rel="stylesheet" href="style.css"/>
   <script defer src="firebase.js"></script>
   <script defer src="script.js"></script>
 </head>
 <body>
   <header>
-    <h1 class="logo">🍊 OrangeFlix</h1>
-    <nav>
-      <ul>
-        <li onclick="scrollToSection('lancamentos')">Lançamentos</li>
-        <li onclick="scrollToSection('destaques')">Destaques</li>
-        <li onclick="scrollToSection('series')">Séries</li>
-        <li onclick="scrollToSection('filmes')">Filmes</li>
-        <li><button onclick="loginGoogle()">Entrar com Google</button></li>
-      </ul>
-    </nav>
+    <h1>MangáVerse</h1>
   </header>
 
-  <section class="categoria">
-    <h2>🔥 Lançamentos</h2>
-    <div class="slide" id="lancamentos"></div>
+  <section id="slide">
+    <h2>Slide</h2>
+    <div class="slider" id="slider"></div>
   </section>
 
-  <section class="categoria">
-    <h2>⭐ Destaques</h2>
-    <div class="slide" id="destaques"></div>
+  <section id="novidades">
+    <h2>Novidades</h2>
+    <div class="manga-container" id="novidades-list"></div>
   </section>
 
-  <section class="categoria">
-    <h2>📺 Séries</h2>
-    <div class="slide" id="series"></div>
+  <section id="destaques">
+    <h2>Destaques</h2>
+    <div class="manga-container" id="destaques-list"></div>
   </section>
 
-  <section class="categoria">
-    <h2>🎬 Filmes</h2>
-    <div class="slide" id="filmes"></div>
+  <section id="populares">
+    <h2>Populares</h2>
+    <div class="manga-container" id="populares-list"></div>
   </section>
 
-  <form id="formFilme">
-    <h3>Adicionar Filme/Série (Admin)</h3>
-    <input type="text" id="titulo" placeholder="Título" required />
-    <input type="number" id="ano" placeholder="Ano" required />
-    <input type="text" id="categoria" placeholder="lancamento, destaque, serie ou filme" required />
-    <input type="text" id="temporada" placeholder="Temporada (só para séries)" />
-    <input type="text" id="link" placeholder="Link do filme ou episódio" required />
-    <input type="file" id="capa" required />
-    <button type="submit">Salvar</button>
-  </form>
+  <footer>
+    <p>&copy; 2025 MangáVerse</p>
+  </footer>
 </body>
 </html>

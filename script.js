@@ -1,102 +1,57 @@
-document.addEventListener("DOMContentLoaded", () => {
-  function scrollToSection(id) {
-    document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
-  }
 
-  function loginGoogle() {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(provider)
-      .then(result => {
-        alert(`Bem-vindo, ${result.user.displayName}`);
-      })
-      .catch(error => {
-        console.error("Erro no login:", error);
-        alert("Erro no login, veja o console.");
-      });
-  }
+const dbRef = window.firebaseRef(window.db);
 
-  document.getElementById("formFilme").addEventListener("submit", async (e) => {
-    e.preventDefault();
+window.firebaseGet(window.firebaseChild(dbRef, 'mangas')).then((snapshot) => {
+  if (snapshot.exists()) {
+    const data = snapshot.val();
+    for (const key in data) {
+      const manga = data[key];
+      const totalCapitulos = manga.capitulos ? Object.keys(manga.capitulos).length : 0;
 
-    const titulo = document.getElementById("titulo").value.trim();
-    const ano = parseInt(document.getElementById("ano").value);
-    const categoria = document.getElementById("categoria").value.trim().toLowerCase();
-    const temporada = document.getElementById("temporada").value.trim();
-    const link = document.getElementById("link").value.trim();
-    const capaFile = document.getElementById("capa").files[0];
-
-    if (!titulo || !ano || !categoria || !link || !capaFile) {
-      alert("Por favor, preencha todos os campos obrigatórios.");
-      return;
-    }
-
-    try {
-      const ref = storage.ref(`capas/${capaFile.name}`);
-      await ref.put(capaFile);
-      const urlCapa = await ref.getDownloadURL();
-
-      await db.collection("filmes").add({
-        titulo,
-        ano,
-        categoria,
-        temporada: categoria === "serie" ? temporada : null,
-        link,
-        capa: urlCapa
-      });
-
-      alert("Filme/Série adicionada com sucesso!");
-      e.target.reset();
-      carregarFilmes();
-
-    } catch (error) {
-      console.error("Erro ao salvar:", error);
-      alert("Erro ao salvar o filme/série. Veja o console.");
-    }
-  });
-
-  async function carregarFilmes() {
-    const snap = await db.collection("filmes").orderBy("ano", "desc").get();
-    const filmes = snap.docs.map(doc => doc.data());
-
-    const lancamentos = filmes.filter(f => f.categoria === "lancamento");
-    const destaques = filmes.filter(f => f.categoria === "destaque");
-    const series = filmes.filter(f => f.categoria === "serie");
-    const filmesSimples = filmes.filter(f => f.categoria === "filme");
-
-    gerarCards(lancamentos, "lancamentos");
-    gerarCards(destaques, "destaques");
-    gerarCards(series, "series");
-    gerarCards(filmesSimples, "filmes");
-  }
-
-  function gerarCards(lista, containerId) {
-    const container = document.getElementById(containerId);
-    if (!container) return;
-
-    container.innerHTML = "";
-
-    lista.forEach(filme => {
-      const temporadaInfo = filme.categoria === "serie" && filme.temporada ? `<p>Temporada: ${filme.temporada}</p>` : "";
-
-      const div = document.createElement("div");
-      div.className = "card";
-      div.innerHTML = `
-        <img src="${filme.capa}" alt="${filme.titulo}" />
-        <div class="card-info">
-          <h3>${filme.titulo}</h3>
-          <span>${filme.ano}</span>
-          ${temporadaInfo}
-          <a href="${filme.link}" target="_blank" rel="noopener noreferrer" class="btn-assistir">▶ Assistir</a>
+      const card = \`
+        <div class="manga-card">
+          <img src="\${manga.capa}" alt="\${manga.titulo}" />
+          <p><strong>\${manga.titulo}</strong></p>
+          <p>Capítulos: \${totalCapitulos}</p>
+          \${totalCapitulos > 0 ? `<button onclick="verCapitulos('\${key}')">Ver Capítulos</button>` : ''}
         </div>
-      `;
+      \`;
 
-      container.appendChild(div);
-    });
+      if (manga.tipo === "novidade") {
+        document.getElementById("novidades-list").innerHTML += card;
+      } else if (manga.tipo === "destaque") {
+        document.getElementById("destaques-list").innerHTML += card;
+      } else if (manga.tipo === "popular") {
+        document.getElementById("populares-list").innerHTML += card;
+      }
+
+      if (manga.slide === true) {
+        document.getElementById("slider").innerHTML += \`
+          <div class="slider-item">
+            <img src="\${manga.capa}" alt="\${manga.titulo}" style="width:100%; border-radius:10px"/>
+          </div>
+        \`;
+      }
+    }
+  } else {
+    console.log("Nenhum mangá encontrado.");
   }
-
-  // Deixar funções globais para o HTML poder chamar
-  window.scrollToSection = scrollToSection;
-  window.loginGoogle = loginGoogle;
-
-  carregarFilmes();
+}).catch((error) => {
+  console.error(error);
 });
+
+window.verCapitulos = async function (mangaId) {
+  const capRef = window.firebaseChild(window.firebaseRef(window.db), \`mangas/\${mangaId}/capitulos\`);
+  const snapshot = await window.firebaseGet(capRef);
+
+  if (snapshot.exists()) {
+    const capitulos = snapshot.val();
+    let lista = "Capítulos disponíveis:\n\n";
+    for (const num in capitulos) {
+      lista += \`Capítulo \${num}: \${capitulos[num]}\n\`;
+    }
+    alert(lista);
+  } else {
+    alert("Nenhum capítulo encontrado.");
+  }
+};
