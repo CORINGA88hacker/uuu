@@ -14,6 +14,23 @@
     <h1>MangáVerse</h1>
   </header>
 
+   <section id="admin" style="display:none;">
+    <h2>Painel Admin</h2>
+    <div class="admin-form">
+      <input type="text" id="titulo" placeholder="Título do Mangá" />
+      <input type="text" id="capa" placeholder="URL da Capa" />
+      <select id="tipo">
+        <option value="novidade">Novidade</option>
+        <option value="destaque">Destaque</option>
+        <option value="popular">Popular</option>
+      </select>
+      <input type="text" id="capitulos" placeholder="Capítulos (ex: 1|url,2|url)" />
+      <label><input type="checkbox" id="slide" /> Incluir no Slide</label>
+      <button onclick="adicionarManga()">Adicionar Mangá</button>
+      <button onclick="fazerLogout()">Sair</button>
+    </div>
+  </section>
+  
   <section id="slide">
     <h2>Slide</h2>
     <div class="slider" id="slider"></div>
@@ -33,24 +50,7 @@
     <h2>Populares</h2>
     <div class="manga-container" id="populares-list"></div>
   </section>
-
-  <section id="admin" style="display:none;">
-    <h2>Painel Admin</h2>
-    <div class="admin-form">
-      <input type="text" id="titulo" placeholder="Título do Mangá" />
-      <input type="text" id="capa" placeholder="URL da Capa" />
-      <select id="tipo">
-        <option value="novidade">Novidade</option>
-        <option value="destaque">Destaque</option>
-        <option value="popular">Popular</option>
-      </select>
-      <input type="text" id="capitulos" placeholder="Capítulos (ex: 1|url,2|url)" />
-      <label><input type="checkbox" id="slide" /> Incluir no Slide</label>
-      <button onclick="adicionarManga()">Adicionar Mangá</button>
-      <button onclick="fazerLogout()">Sair</button>
-    </div>
-  </section>
-
+  
   <footer>
     <p>&copy; 2025 MangáVerse</p>
   </footer>
