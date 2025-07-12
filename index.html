@@ -18,7 +18,7 @@
     header { width: 100%; padding: 10px; background: rgba(0, 0, 0, 0.5); text-align: center; }
     nav { display: flex; justify-content: space-around; margin: 20px 0; }
     nav button { flex: 1; margin: 0 5px; padding: 10px; background: #222; color: white; border-radius: 8px; }
-    .publicar, .ver-publicacoes { display: none; width: 100%; }
+    .publicar, .ver-publicacoes { display: none; width: 100%; flex-direction: column; align-items: center; }
     .video-container { height: 100vh; scroll-snap-align: start; position: relative; }
     video { width: 100%; height: 100%; object-fit: cover; }
     .info { position: absolute; bottom: 100px; left: 10px; font-size: 16px; }
@@ -27,7 +27,7 @@
     .feed { height: 100vh; overflow-y: scroll; scroll-snap-type: y mandatory; }
   </style>
 </head>
-<body onload="carregarFeed()">
+<body>
   <div id="auth">
     <input type="text" id="email" placeholder="Email">
     <input type="password" id="senha" placeholder="Senha">
@@ -48,7 +48,8 @@
     </nav>
 
     <div class="publicar" id="publicar">
-      <input type="file" accept="video/*" onchange="uploadVideo(this.files[0])">
+      <input type="file" id="videoInput" accept="video/*">
+      <button onclick="enviarVideo()">Enviar</button>
     </div>
 
     <div class="ver-publicacoes" id="ver-publicacoes">
@@ -59,7 +60,7 @@
   <script src="script.js"></script>
   <script>
     function mostrarPublicar() {
-      document.getElementById('publicar').style.display = 'block';
+      document.getElementById('publicar').style.display = 'flex';
       document.getElementById('ver-publicacoes').style.display = 'none';
     }
 
@@ -67,6 +68,24 @@
       document.getElementById('publicar').style.display = 'none';
       document.getElementById('ver-publicacoes').style.display = 'block';
       carregarFeed();
+    }
+
+    firebase.auth().onAuthStateChanged(user => {
+      if (user) {
+        document.getElementById("auth").style.display = "none";
+        document.getElementById("painel").style.display = "block";
+        document.getElementById("userInfo").innerText = `Logado como: ${user.email}`;
+        carregarFeed();
+      }
+    });
+
+    function enviarVideo() {
+      const file = document.getElementById("videoInput").files[0];
+      if (file) {
+        uploadVideo(file);
+      } else {
+        alert("Selecione um vídeo para enviar.");
+      }
     }
   </script>
 </body>
