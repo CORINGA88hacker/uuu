@@ -1,7 +1,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+  import { getDatabase, ref, get, set, child } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBHIc2E4XwRO5FXo4uHlTQVRArOis73MjE",
@@ -19,5 +19,6 @@
   window.db = db;
   window.firebaseRef = ref;
   window.firebaseGet = get;
+  window.firebaseSet = set;
   window.firebaseChild = child;
 </script>

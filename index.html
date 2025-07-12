@@ -34,6 +34,22 @@
     <div class="manga-container" id="populares-list"></div>
   </section>
 
+  <section id="admin">
+    <h2>Painel Admin</h2>
+    <div class="admin-form">
+      <input type="text" id="titulo" placeholder="Título do Mangá" />
+      <input type="text" id="capa" placeholder="URL da Capa" />
+      <select id="tipo">
+        <option value="novidade">Novidade</option>
+        <option value="destaque">Destaque</option>
+        <option value="popular">Popular</option>
+      </select>
+      <input type="text" id="capitulos" placeholder="Capítulos (ex: 1|url,2|url)" />
+      <label><input type="checkbox" id="slide" /> Incluir no Slide</label>
+      <button onclick="adicionarManga()">Adicionar Mangá</button>
+    </div>
+  </section>
+
   <footer>
     <p>&copy; 2025 MangáVerse</p>
   </footer>

@@ -87,3 +87,29 @@ footer {
   padding: 15px;
   margin-top: 20px;
 }
+
+.admin-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: #1a1a1a;
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 400px;
+  margin: auto;
+}
+
+.admin-form input, .admin-form select {
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
+}
+
+.admin-form button {
+  background-color: #e60012;
+  color: #fff;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
