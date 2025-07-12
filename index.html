@@ -1,58 +1,32 @@
-
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>MangáVerse</title>
-  <link rel="stylesheet" href="style.css"/>
-  <script defer src="firebase.js"></script>
-  <script defer src="script.js"></script>
+  <title>Clone TikTok</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <h1>MangáVerse</h1>
-  </header>
-
-   <section id="admin" style="display:none;">
-    <h2>Painel Admin</h2>
-    <div class="admin-form">
-      <input type="text" id="titulo" placeholder="Título do Mangá" />
-      <input type="text" id="capa" placeholder="URL da Capa" />
-      <select id="tipo">
-        <option value="novidade">Novidade</option>
-        <option value="destaque">Destaque</option>
-        <option value="popular">Popular</option>
-      </select>
-      <input type="text" id="capitulos" placeholder="Capítulos (ex: 1|url,2|url)" />
-      <label><input type="checkbox" id="slide" /> Incluir no Slide</label>
-      <button onclick="adicionarManga()">Adicionar Mangá</button>
-      <button onclick="fazerLogout()">Sair</button>
+  <div id="feed">
+    <div class="video-container">
+      <video src="video1.mp4" autoplay loop muted></video>
+      <div class="actions">
+        <button>❤️</button>
+        <button>💬</button>
+        <button>🔁</button>
+      </div>
     </div>
-  </section>
-  
-  <section id="slide">
-    <h2>Slide</h2>
-    <div class="slider" id="slider"></div>
-  </section>
+    <div class="video-container">
+      <video src="video2.mp4" autoplay loop muted></video>
+      <div class="actions">
+        <button>❤️</button>
+        <button>💬</button>
+        <button>🔁</button>
+      </div>
+    </div>
+    <!-- Adicione mais vídeos aqui -->
+  </div>
 
-  <section id="novidades">
-    <h2>Novidades</h2>
-    <div class="manga-container" id="novidades-list"></div>
-  </section>
-
-  <section id="destaques">
-    <h2>Destaques</h2>
-    <div class="manga-container" id="destaques-list"></div>
-  </section>
-
-  <section id="populares">
-    <h2>Populares</h2>
-    <div class="manga-container" id="populares-list"></div>
-  </section>
-  
-  <footer>
-    <p>&copy; 2025 MangáVerse</p>
-  </footer>
+  <script src="script.js"></script>
 </body>
 </html>
