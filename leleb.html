@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Administração de Usuários</title>
+  <style>
+    body {
+      background: #121212;
+      color: white;
+      font-family: sans-serif;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #222;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid #333;
+      text-align: center;
+      vertical-align: middle;
+    }
+    th {
+      background: #333;
+    }
+    img {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    input[type="text"] {
+      width: 90%;
+      padding: 6px;
+      border-radius: 6px;
+      border: none;
+      font-size: 14px;
+      background: #444;
+      color: white;
+    }
+    button {
+      background: #ff0050;
+      border: none;
+      color: white;
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    button:disabled {
+      background: #888;
+      cursor: not-allowed;
+    }
+    .actions {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+    #reloadBtn {
+      margin-bottom: 15px;
+      background: #0099ff;
+    }
+  </style>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-functions-compat.js"></script>
+</head>
+<body>
+  <h1>Administração de Usuários</h1>
+  <button id="reloadBtn" onclick="carregarUsuarios()">Recarregar Lista</button>
+  <table>
+    <thead>
+      <tr>
+        <th>Foto</th>
+        <th>Email</th>
+        <th>Nickname</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody id="userTableBody">
+      <!-- Usuários aqui -->
+    </tbody>
+  </table>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBHIc2E4XwRO5FXo4uHlTQVRArOis73MjE",
+      authDomain: "projeto-deus-yato-928-sk-default-rtdb.firebaseapp.com",
+      databaseURL: "https://projeto-deus-yato-928-sk-default-rtdb.firebaseio.com",
+      projectId: "projeto-deus-yato-928-sk-default-rtdb",
+      storageBucket: "projeto-deus-yato-928-sk.appspot.com",
+      messagingSenderId: "790408726854",
+      appId: "1:790408726854:android:e2f0de7b7d5dba96b0fd47"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // Carregar usuários do Realtime Database
+    function carregarUsuarios() {
+      const tbody = document.getElementById('userTableBody');
+      tbody.innerHTML = '<tr><td colspan="4">Carregando...</td></tr>';
+
+      db.ref('usuarios').once('value').then(snapshot => {
+        const usuarios = snapshot.val();
+        tbody.innerHTML = '';
+        if (!usuarios) {
+          tbody.innerHTML = '<tr><td colspan="4">Nenhum usuário encontrado.</td></tr>';
+          return;
+        }
+
+        Object.entries(usuarios).forEach(([uid, dados]) => {
+          const tr = document.createElement('tr');
+
+          tr.innerHTML = `
+            <td><img src="${dados.fotoURL || 'https://i.imgur.com/6VBx3io.png'}" alt="Foto do perfil" /></td>
+            <td style="max-width: 200px; word-break: break-word;">${dados.email || ''}</td>
+            <td>
+              <input type="text" value="${dados.nickname || ''}" id="nick-${uid}" />
+            </td>
+            <td class="actions">
+              <button onclick="salvarNickname('${uid}')">Salvar</button>
+              <button onclick="deletarUsuario('${uid}')">Excluir</button>
+            </td>
+          `;
+
+          tbody.appendChild(tr);
+        });
+      }).catch(e => {
+        tbody.innerHTML = '<tr><td colspan="4">Erro ao carregar usuários.</td></tr>';
+        console.error(e);
+      });
+    }
+
+    // Salvar nickname editado
+    function salvarNickname(uid) {
+      const input = document.getElementById(`nick-${uid}`);
+      const novoNickname = input.value.trim();
+      if (!novoNickname) {
+        alert('O nickname não pode ser vazio.');
+        return;
+      }
+
+      db.ref('usuarios/' + uid).update({ nickname: novoNickname })
+        .then(() => alert('Nickname atualizado com sucesso!'))
+        .catch(e => alert('Erro ao atualizar nickname: ' + e.message));
+    }
+
+    // Deletar usuário do Realtime Database (apaga só os dados de perfil)
+    function deletarUsuario(uid) {
+      if (!confirm('Tem certeza que quer excluir este usuário? Esta ação não pode ser desfeita.')) return;
+
+      // Apaga os dados do perfil no Realtime Database
+      db.ref('usuarios/' + uid).remove()
+        .then(() => alert('Usuário removido do banco de dados! (Dados auth permanecem)'))
+        .catch(e => alert('Erro ao remover usuário: ' + e.message));
+    }
+
+    // Carrega lista ao abrir a página
+    window.onload = () => {
+      carregarUsuarios();
+    };
+  </script>
+</body>
+</html>
