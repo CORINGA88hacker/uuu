@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>TikTok Clone</title>
+  <title>TikTok Clone com Perfil</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body, html { height: 100%; background: black; font-family: sans-serif; color: white; }
+    body, html { height: 100%; background: #121212; font-family: sans-serif; color: white; }
     #auth, #painel {
       width: 100%; height: 100%;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      background: black; padding: 20px;
+      background: #121212; padding: 20px;
     }
     input, button {
       margin: 10px; padding: 12px; font-size: 16px; border-radius: 8px; border: none;
@@ -20,44 +20,87 @@
     }
     header {
       width: 100%; padding: 10px;
-      background: rgba(0, 0, 0, 0.5);
-      text-align: center;
+      background: rgba(0, 0, 0, 0.6);
+      display: flex; justify-content: space-between; align-items: center;
+      color: white;
     }
     nav {
-      display: flex; justify-content: space-around; margin: 20px 0; width: 100%;
+      display: flex; justify-content: center; margin: 15px 0; width: 100%;
+      gap: 10px;
     }
     nav button {
-      flex: 1; margin: 0 5px; padding: 10px;
+      flex: 1; padding: 10px;
       background: #222; color: white; border-radius: 8px;
       cursor: pointer;
+      max-width: 150px;
     }
-    .publicar, .ver-publicacoes {
+    .section {
       display: none; width: 100%;
       flex-direction: column; align-items: center;
     }
+    .active {
+      display: flex !important;
+    }
     .video-container {
       height: 100vh; scroll-snap-align: start; position: relative;
+      background: black;
     }
     video {
       width: 100%; height: 100%; object-fit: cover;
     }
     .info {
-      position: absolute; bottom: 100px; left: 10px; font-size: 16px;
+      position: absolute; bottom: 110px; left: 10px; font-size: 16px;
       text-shadow: 0 0 5px black;
+      max-width: 70%;
+      word-wrap: break-word;
     }
     .actions {
-      position: absolute; right: 10px; bottom: 100px;
-      display: flex; flex-direction: column; gap: 20px; font-size: 24px;
+      position: absolute; right: 10px; bottom: 110px;
+      display: flex; flex-direction: column; gap: 20px; font-size: 26px;
       user-select: none;
     }
     .actions span {
       cursor: pointer; background: rgba(0,0,0,0.5);
-      padding: 8px; border-radius: 10px;
+      padding: 10px; border-radius: 14px;
       user-select: none;
+      display: flex; align-items: center; justify-content: center;
+      gap: 6px;
     }
     .feed {
       height: 100vh; overflow-y: scroll; scroll-snap-type: y mandatory;
       width: 100%;
+    }
+    #profilePic {
+      width: 50px; height: 50px; border-radius: 50%; object-fit: cover;
+      border: 2px solid #ff0050;
+      cursor: pointer;
+    }
+    #profileSection {
+      padding: 20px;
+      background: #222;
+      border-radius: 12px;
+      width: 300px;
+      margin-bottom: 20px;
+      display: flex; flex-direction: column; align-items: center;
+      gap: 15px;
+    }
+    #profileSection input[type="text"] {
+      width: 100%; padding: 10px; font-size: 16px; border-radius: 8px; border: none;
+    }
+    #profileSection label {
+      cursor: pointer;
+      color: #ff0050;
+      font-weight: bold;
+      font-size: 14px;
+    }
+    #profileSection button {
+      width: 100%;
+    }
+    #userEmail {
+      font-size: 14px;
+      opacity: 0.7;
+      word-break: break-all;
+      text-align: center;
     }
   </style>
 
@@ -69,200 +112,318 @@
 </head>
 <body>
 
+  <!-- Tela de login e cadastro -->
   <div id="auth">
     <input type="text" id="email" placeholder="Email" />
     <input type="password" id="senha" placeholder="Senha" />
+    <input type="text" id="nickname" placeholder="Nome de usuário (ex: maninho)" />
     <div>
       <button onclick="cadastrar()">Cadastrar</button>
       <button onclick="logar()">Entrar</button>
     </div>
   </div>
 
+  <!-- Painel principal -->
   <div id="painel" style="display:none">
     <header>
-      <p id="userInfo"></p>
+      <img id="profilePic" src="" alt="Foto do perfil" title="Clique para mudar foto" onclick="document.getElementById('profilePicInput').click()" />
+      <div>
+        <div id="userName" style="font-weight: bold; font-size: 18px;">Usuário</div>
+        <div id="userEmail"></div>
+      </div>
+      <button onclick="logout()" style="background:#444; padding:8px 12px; border-radius: 10px;">Sair</button>
     </header>
 
     <nav>
-      <button onclick="mostrarPublicar()">Publicar</button>
-      <button onclick="mostrarFeed()">Ver Publicações</button>
-      <button onclick="logout()" style="background:#444; margin-left: 5px;">Sair</button>
+      <button onclick="mostrarSecao('publicar')">Publicar</button>
+      <button onclick="mostrarSecao('feed')">Ver Publicações</button>
+      <button onclick="mostrarSecao('perfil')">Perfil</button>
     </nav>
 
-    <div class="publicar" id="publicar">
+    <!-- Seção publicar -->
+    <section id="publicar" class="section">
       <input type="file" id="videoInput" accept="video/*" />
       <button onclick="enviarVideo()">Enviar</button>
-    </div>
+    </section>
 
-    <div class="ver-publicacoes" id="ver-publicacoes">
-      <div id="feed" class="feed"></div>
-    </div>
+    <!-- Seção feed -->
+    <section id="feed" class="section feed">
+      <!-- Vídeos carregados aqui -->
+    </section>
+
+    <!-- Seção perfil -->
+    <section id="perfil" class="section" style="align-items: center;">
+      <div id="profileSection">
+        <img id="perfilFoto" src="" alt="Foto do perfil" style="width:100px; height:100px; border-radius:50%; object-fit:cover; border: 3px solid #ff0050; margin-bottom: 10px;" />
+        <input type="text" id="inputNome" placeholder="Seu nome" />
+        <label for="profilePicInput">Alterar foto do perfil</label>
+        <input type="file" id="profilePicInput" accept="image/*" style="display:none" onchange="uploadProfilePic()" />
+        <button onclick="salvarPerfil()">Salvar perfil</button>
+      </div>
+    </section>
   </div>
 
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyBHIc2E4XwRO5FXo4uHlTQVRArOis73MjE",
-      authDomain: "projeto-deus-yato-928-sk-default-rtdb.firebaseapp.com",
-      databaseURL: "https://projeto-deus-yato-928-sk-default-rtdb.firebaseio.com",
-      projectId: "projeto-deus-yato-928-sk-default-rtdb",
-      storageBucket: "projeto-deus-yato-928-sk.appspot.com",
-      messagingSenderId: "790408726854",
-      appId: "1:790408726854:android:e2f0de7b7d5dba96b0fd47"
-    };
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyBHIc2E4XwRO5FXo4uHlTQVRArOis73MjE",
+    authDomain: "projeto-deus-yato-928-sk-default-rtdb.firebaseapp.com",
+    databaseURL: "https://projeto-deus-yato-928-sk-default-rtdb.firebaseio.com",
+    projectId: "projeto-deus-yato-928-sk-default-rtdb",
+    storageBucket: "projeto-deus-yato-928-sk.appspot.com",
+    messagingSenderId: "790408726854",
+    appId: "1:790408726854:android:e2f0de7b7d5dba96b0fd47"
+  };
 
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.database();
-    const storage = firebase.storage();
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.database();
+  const storage = firebase.storage();
 
-    // Cadastro e login
-    function cadastrar() {
-      const email = document.getElementById("email").value.trim();
-      const senha = document.getElementById("senha").value.trim();
-      if (!email || !senha) {
-        alert("Preencha email e senha.");
-        return;
-      }
-      auth.createUserWithEmailAndPassword(email, senha)
-        .then(() => alert("Cadastrado com sucesso!"))
-        .catch(e => alert(e.message));
+  // Cadastrar usuário + salvar perfil com nickname
+  async function cadastrar() {
+    const email = document.getElementById("email").value.trim();
+    const senha = document.getElementById("senha").value.trim();
+    const nickname = document.getElementById("nickname").value.trim();
+    if (!email || !senha || !nickname) {
+      alert("Preencha email, senha e nome de usuário.");
+      return;
     }
 
-    function logar() {
-      const email = document.getElementById("email").value.trim();
-      const senha = document.getElementById("senha").value.trim();
-      if (!email || !senha) {
-        alert("Preencha email e senha.");
-        return;
-      }
-      auth.signInWithEmailAndPassword(email, senha)
-        .then(user => {
-          mostrarPainel(user.user);
-        })
-        .catch(e => alert(e.message));
-    }
+    try {
+      const cred = await auth.createUserWithEmailAndPassword(email, senha);
+      const uid = cred.user.uid;
 
-    function mostrarPainel(user) {
-      document.getElementById("auth").style.display = "none";
-      document.getElementById("painel").style.display = "flex";
-      document.getElementById("userInfo").innerText = `Logado como: ${user.email}`;
-      mostrarFeed();
-    }
-
-    // Logout
-    function logout() {
-      auth.signOut().then(() => {
-        document.getElementById("painel").style.display = "none";
-        document.getElementById("auth").style.display = "flex";
-        document.getElementById("userInfo").innerText = "";
-        document.getElementById("feed").innerHTML = "";
-        document.getElementById("videoInput").value = "";
-        mostrarPublicar();
+      // Salva dados perfil no Realtime DB
+      await db.ref('usuarios/' + uid).set({
+        nickname,
+        email,
+        fotoURL: ""
       });
+
+      alert("Cadastrado com sucesso!");
+      limparCamposAuth();
+    } catch (e) {
+      alert(e.message);
+    }
+  }
+
+  // Login
+  async function logar() {
+    const email = document.getElementById("email").value.trim();
+    const senha = document.getElementById("senha").value.trim();
+    if (!email || !senha) {
+      alert("Preencha email e senha.");
+      return;
     }
 
-    // Upload vídeo
-    function uploadVideo(file) {
-      const user = auth.currentUser;
-      if (!user) {
-        alert("Faça login para enviar vídeos.");
-        return;
-      }
-
-      const videoRef = storage.ref("videos/" + Date.now() + "_" + file.name);
-      const uploadTask = videoRef.put(file);
-
-      uploadTask.on('state_changed',
-        () => {}, // Progresso pode ser implementado aqui
-        error => alert("Erro no upload: " + error.message),
-        () => {
-          uploadTask.snapshot.ref.getDownloadURL().then(url => {
-            const videoData = {
-              url,
-              autor: user.email,
-              curtidas: 0,
-              timestamp: Date.now()
-            };
-            db.ref("videos").push(videoData);
-            alert("Vídeo enviado com sucesso!");
-            carregarFeed();
-            document.getElementById("videoInput").value = "";
-            mostrarFeed();
-          });
-        }
-      );
+    try {
+      const cred = await auth.signInWithEmailAndPassword(email, senha);
+      carregarPerfil();
+      mostrarSecao('feed');
+    } catch (e) {
+      alert(e.message);
     }
+  }
 
-    // Enviar vídeo - chama uploadVideo
-    function enviarVideo() {
-      const file = document.getElementById("videoInput").files[0];
-      if (!file) {
-        alert("Selecione um vídeo para enviar.");
-        return;
-      }
-      uploadVideo(file);
-    }
+  // Limpar campos tela auth
+  function limparCamposAuth() {
+    document.getElementById("email").value = "";
+    document.getElementById("senha").value = "";
+    document.getElementById("nickname").value = "";
+  }
 
-    // Mostrar seções
-    function mostrarPublicar() {
-      document.getElementById('publicar').style.display = 'flex';
-      document.getElementById('ver-publicacoes').style.display = 'none';
-    }
+  // Mostrar painel e perfil do usuário
+  function mostrarPainel(userData) {
+    document.getElementById("auth").style.display = "none";
+    document.getElementById("painel").style.display = "flex";
+    document.getElementById("userEmail").innerText = userData.email;
+    document.getElementById("userName").innerText = userData.nickname || "Usuário";
+    document.getElementById("perfilFoto").src = userData.fotoURL || "https://i.imgur.com/6VBx3io.png";
+    document.getElementById("profilePic").src = userData.fotoURL || "https://i.imgur.com/6VBx3io.png";
+    document.getElementById("inputNome").value = userData.nickname || "";
+  }
 
-    function mostrarFeed() {
-      document.getElementById('publicar').style.display = 'none';
-      document.getElementById('ver-publicacoes').style.display = 'flex';
-      carregarFeed();
-    }
-
-    // Carregar feed
-    function carregarFeed() {
-      db.ref("videos").orderByChild("timestamp").once("value", snapshot => {
-        const feed = document.getElementById("feed");
-        feed.innerHTML = "";
-
-        snapshot.forEach(child => {
-          const data = child.val();
-          const key = child.key;
-
-          const container = document.createElement("div");
-          container.className = "video-container";
-
-          container.innerHTML = `
-            <video src="${data.url}" controls></video>
-            <div class="info">Autor: ${data.autor}</div>
-            <div class="actions">
-              <span onclick="curtir('${key}')">❤️ ${data.curtidas || 0}</span>
-              <span>💬 Comentários</span>
-            </div>
-          `;
-
-          feed.prepend(container);
-        });
-      });
-    }
-
-    // Curtir vídeo
-    function curtir(key) {
-      const likeRef = db.ref(`videos/${key}/curtidas`);
-      likeRef.transaction(curtidas => (curtidas || 0) + 1);
-      carregarFeed();
-    }
-
-    // Mantém login ativo
-    auth.onAuthStateChanged(user => {
-      if (user) {
-        mostrarPainel(user);
-      } else {
-        document.getElementById("painel").style.display = "none";
-        document.getElementById("auth").style.display = "flex";
-      }
+  // Logout
+  function logout() {
+    auth.signOut().then(() => {
+      document.getElementById("painel").style.display = "none";
+      document.getElementById("auth").style.display = "flex";
+      document.getElementById("feed").innerHTML = "";
+      mostrarSecao('publicar');
     });
+  }
 
-    // Ao carregar, mostra publicar por padrão
-    window.onload = () => {
-      mostrarPublicar();
-    };
-  </script>
+  // Upload vídeo
+  function uploadVideo(file) {
+    const user = auth.currentUser;
+    if (!user) {
+      alert("Faça login para enviar vídeos.");
+      return;
+    }
+
+    const videoRef = storage.ref("videos/" + Date.now() + "_" + file.name);
+    const uploadTask = videoRef.put(file);
+
+    uploadTask.on('state_changed',
+      () => {}, // Progresso pode ser implementado aqui
+      error => alert("Erro no upload: " + error.message),
+      () => {
+        uploadTask.snapshot.ref.getDownloadURL().then(url => {
+          const videoData = {
+            url,
+            autorUid: user.uid,
+            autorNickname: userDataCache.nickname || user.email,
+            curtidas: 0,
+            usuariosCurtiram: {},
+            timestamp: Date.now()
+          };
+          db.ref("videos").push(videoData);
+          alert("Vídeo enviado com sucesso!");
+          carregarFeed();
+          document.getElementById("videoInput").value = "";
+          mostrarSecao('feed');
+        });
+      }
+    );
+  }
+
+  function enviarVideo() {
+    const file = document.getElementById("videoInput").files[0];
+    if (!file) {
+      alert("Selecione um vídeo para enviar.");
+      return;
+    }
+    uploadVideo(file);
+  }
+
+  // Mostrar seção (publicar, feed, perfil)
+  function mostrarSecao(secao) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById(secao).classList.add('active');
+  }
+
+  // Carregar feed
+  function carregarFeed() {
+    db.ref("videos").orderByChild("timestamp").once("value", snapshot => {
+      const feed = document.getElementById("feed");
+      feed.innerHTML = "";
+
+      snapshot.forEach(child => {
+        const data = child.val();
+        const key = child.key;
+
+        const container = document.createElement("div");
+        container.className = "video-container";
+
+        container.innerHTML = `
+          <video src="${data.url}" controls></video>
+          <div class="info">
+            ${data.autorNickname || "Anônimo"}<br/>
+            ${data.autorUid === auth.currentUser.uid ? '<b>Seu vídeo</b>' : ''}
+          </div>
+          <div class="actions">
+            <span onclick="curtir('${key}')">❤️ ${data.curtidas || 0}</span>
+            <span>💬 Comentários</span>
+          </div>
+        `;
+
+        feed.prepend(container);
+      });
+    });
+  }
+
+  // Limitar 1 curtida por usuário
+  function curtir(key) {
+    const user = auth.currentUser;
+    if (!user) {
+      alert("Faça login para curtir.");
+      return;
+    }
+
+    const videoRef = db.ref(`videos/${key}`);
+
+    videoRef.transaction(video => {
+      if (video) {
+        if (!video.usuariosCurtiram) video.usuariosCurtiram = {};
+        if (video.usuariosCurtiram[user.uid]) {
+          alert("Você já curtiu este vídeo!");
+          return; // cancela
+        } else {
+          video.curtidas = (video.curtidas || 0) + 1;
+          video.usuariosCurtiram[user.uid] = true;
+        }
+      }
+      return video;
+    }, (error, committed) => {
+      if (error) alert("Erro ao curtir: " + error);
+      else if (committed) carregarFeed();
+    });
+  }
+
+  // Cache do perfil carregado (pra usar autorNickname no upload)
+  let userDataCache = {};
+
+  // Carregar perfil do usuário logado
+  function carregarPerfil() {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    db.ref('usuarios/' + user.uid).once('value').then(snapshot => {
+      userDataCache = snapshot.val() || {};
+      mostrarPainel(userDataCache);
+    });
+  }
+
+  // Upload foto perfil
+  function uploadProfilePic() {
+    const file = document.getElementById('profilePicInput').files[0];
+    const user = auth.currentUser;
+    if (!file || !user) return alert("Escolha uma foto e faça login.");
+
+    const picRef = storage.ref('profiles/' + user.uid + '.jpg');
+    picRef.put(file).then(() => {
+      picRef.getDownloadURL().then(url => {
+        db.ref('usuarios/' + user.uid).update({ fotoURL: url });
+        userDataCache.fotoURL = url;
+        document.getElementById('perfilFoto').src = url;
+        document.getElementById('profilePic').src = url;
+        alert("Foto de perfil atualizada!");
+      });
+    }).catch(e => alert("Erro ao enviar foto: " + e.message));
+  }
+
+  // Salvar nome atualizado do perfil
+  function salvarPerfil() {
+    const novoNome = document.getElementById('inputNome').value.trim();
+    const user = auth.currentUser;
+    if (!novoNome) return alert("Digite um nome.");
+
+    if (!user) return alert("Faça login.");
+
+    db.ref('usuarios/' + user.uid).update({ nickname: novoNome })
+      .then(() => {
+        userDataCache.nickname = novoNome;
+        mostrarPainel(userDataCache);
+        alert("Nome atualizado!");
+      })
+      .catch(e => alert("Erro ao salvar nome: " + e.message));
+  }
+
+  // Estado de autenticação
+  auth.onAuthStateChanged(user => {
+    if (user) {
+      carregarPerfil();
+      mostrarSecao('feed');
+    } else {
+      document.getElementById("painel").style.display = "none";
+      document.getElementById("auth").style.display = "flex";
+    }
+  });
+
+  // Ao iniciar, mostrar tela publicar para usuário logado
+  window.onload = () => {
+    mostrarSecao('publicar');
+  };
+</script>
 </body>
 </html>
