@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Administração de Usuários</title>
+  <title>Administração de Usuários e Vídeos</title>
   <style>
     body {
       background: #121212;
@@ -15,12 +15,16 @@
       text-align: center;
       margin-bottom: 20px;
     }
+    section {
+      margin-bottom: 40px;
+    }
     table {
       width: 100%;
       border-collapse: collapse;
       background: #222;
       border-radius: 10px;
       overflow: hidden;
+      margin-bottom: 10px;
     }
     th, td {
       padding: 10px;
@@ -37,7 +41,7 @@
       border-radius: 50%;
       object-fit: cover;
     }
-    input[type="text"] {
+    input[type="text"], input[type="number"] {
       width: 90%;
       padding: 6px;
       border-radius: 6px;
@@ -64,9 +68,33 @@
       gap: 10px;
       justify-content: center;
     }
-    #reloadBtn {
-      margin-bottom: 15px;
+    #reloadUsersBtn, #reloadVideosBtn {
       background: #0099ff;
+      margin-bottom: 15px;
+      padding: 10px 20px;
+      border-radius: 8px;
+    }
+    video {
+      max-width: 150px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    #autoCurteSection {
+      margin-top: 20px;
+      background: #222;
+      padding: 15px;
+      border-radius: 12px;
+      max-width: 500px;
+    }
+    #autoCurteSection input, #autoCurteSection select {
+      width: 100%;
+      margin: 8px 0;
+      padding: 8px;
+      border-radius: 6px;
+      border: none;
+      background: #444;
+      color: white;
+      font-size: 14px;
     }
   </style>
 
@@ -74,103 +102,281 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-functions-compat.js"></script>
 </head>
 <body>
-  <h1>Administração de Usuários</h1>
-  <button id="reloadBtn" onclick="carregarUsuarios()">Recarregar Lista</button>
-  <table>
-    <thead>
-      <tr>
-        <th>Foto</th>
-        <th>Email</th>
-        <th>Nickname</th>
-        <th>Ações</th>
-      </tr>
-    </thead>
-    <tbody id="userTableBody">
-      <!-- Usuários aqui -->
-    </tbody>
-  </table>
+  <h1>Administração - Usuários e Vídeos</h1>
 
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyBHIc2E4XwRO5FXo4uHlTQVRArOis73MjE",
-      authDomain: "projeto-deus-yato-928-sk-default-rtdb.firebaseapp.com",
-      databaseURL: "https://projeto-deus-yato-928-sk-default-rtdb.firebaseio.com",
-      projectId: "projeto-deus-yato-928-sk-default-rtdb",
-      storageBucket: "projeto-deus-yato-928-sk.appspot.com",
-      messagingSenderId: "790408726854",
-      appId: "1:790408726854:android:e2f0de7b7d5dba96b0fd47"
-    };
+  <section>
+    <h2>Usuários</h2>
+    <button id="reloadUsersBtn" onclick="carregarUsuarios()">Recarregar Usuários</button>
+    <table>
+      <thead>
+        <tr>
+          <th>Foto</th>
+          <th>Email</th>
+          <th>Nickname</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="userTableBody">
+        <tr><td colspan="4">Carregando...</td></tr>
+      </tbody>
+    </table>
+  </section>
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+  <section>
+    <h2>Vídeos</h2>
+    <button id="reloadVideosBtn" onclick="carregarVideos()">Recarregar Vídeos</button>
+    <table>
+      <thead>
+        <tr>
+          <th>Vídeo</th>
+          <th>Autor</th>
+          <th>Curtidas</th>
+          <th>Usuários Curtiram</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="videoTableBody">
+        <tr><td colspan="5">Carregando...</td></tr>
+      </tbody>
+    </table>
+  </section>
 
-    // Carregar usuários do Realtime Database
-    function carregarUsuarios() {
-      const tbody = document.getElementById('userTableBody');
-      tbody.innerHTML = '<tr><td colspan="4">Carregando...</td></tr>';
+  <section id="autoCurteSection">
+    <h2>Auto-curtidas</h2>
+    <label for="videoSelect">Selecione o vídeo:</label>
+    <select id="videoSelect">
+      <option value="">Carregando vídeos...</option>
+    </select>
 
-      db.ref('usuarios').once('value').then(snapshot => {
-        const usuarios = snapshot.val();
-        tbody.innerHTML = '';
-        if (!usuarios) {
-          tbody.innerHTML = '<tr><td colspan="4">Nenhum usuário encontrado.</td></tr>';
-          return;
-        }
+    <label for="curtidasCount">Quantidade de curtidas (max bots):</label>
+    <input type="number" id="curtidasCount" min="1" max="100" value="5" />
 
-        Object.entries(usuarios).forEach(([uid, dados]) => {
-          const tr = document.createElement('tr');
+    <button onclick="autoCurtir()">Executar Auto-curtidas</button>
 
-          tr.innerHTML = `
-            <td><img src="${dados.fotoURL || 'https://i.imgur.com/6VBx3io.png'}" alt="Foto do perfil" /></td>
-            <td style="max-width: 200px; word-break: break-word;">${dados.email || ''}</td>
-            <td>
-              <input type="text" value="${dados.nickname || ''}" id="nick-${uid}" />
-            </td>
-            <td class="actions">
-              <button onclick="salvarNickname('${uid}')">Salvar</button>
-              <button onclick="deletarUsuario('${uid}')">Excluir</button>
-            </td>
-          `;
+    <p style="color:#aaa; font-size:12px; margin-top:10px;">
+      * As contas para curtir devem estar definidas num arquivo bots.json (email e senha).<br/>
+      * As curtidas serão feitas em sequência, uma conta por vez.<br/>
+      * Use com responsabilidade.
+    </p>
+  </section>
 
-          tbody.appendChild(tr);
-        });
-      }).catch(e => {
-        tbody.innerHTML = '<tr><td colspan="4">Erro ao carregar usuários.</td></tr>';
-        console.error(e);
-      });
-    }
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyBHIc2E4XwRO5FXo4uHlTQVRArOis73MjE",
+    authDomain: "projeto-deus-yato-928-sk-default-rtdb.firebaseapp.com",
+    databaseURL: "https://projeto-deus-yato-928-sk-default-rtdb.firebaseio.com",
+    projectId: "projeto-deus-yato-928-sk-default-rtdb",
+    storageBucket: "projeto-deus-yato-928-sk.appspot.com",
+    messagingSenderId: "790408726854",
+    appId: "1:790408726854:android:e2f0de7b7d5dba96b0fd47"
+  };
 
-    // Salvar nickname editado
-    function salvarNickname(uid) {
-      const input = document.getElementById(`nick-${uid}`);
-      const novoNickname = input.value.trim();
-      if (!novoNickname) {
-        alert('O nickname não pode ser vazio.');
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+  const auth = firebase.auth();
+
+  // ----------- GERENCIAR USUÁRIOS -----------
+
+  function carregarUsuarios() {
+    const tbody = document.getElementById('userTableBody');
+    tbody.innerHTML = '<tr><td colspan="4">Carregando...</td></tr>';
+
+    db.ref('usuarios').once('value').then(snapshot => {
+      const usuarios = snapshot.val();
+      tbody.innerHTML = '';
+      if (!usuarios) {
+        tbody.innerHTML = '<tr><td colspan="4">Nenhum usuário encontrado.</td></tr>';
         return;
       }
 
-      db.ref('usuarios/' + uid).update({ nickname: novoNickname })
-        .then(() => alert('Nickname atualizado com sucesso!'))
-        .catch(e => alert('Erro ao atualizar nickname: ' + e.message));
+      Object.entries(usuarios).forEach(([uid, dados]) => {
+        const tr = document.createElement('tr');
+
+        tr.innerHTML = `
+          <td><img src="${dados.fotoURL || 'https://i.imgur.com/6VBx3io.png'}" alt="Foto do perfil" /></td>
+          <td style="max-width: 200px; word-break: break-word;">${dados.email || ''}</td>
+          <td><input type="text" value="${dados.nickname || ''}" id="nick-${uid}" /></td>
+          <td class="actions">
+            <button onclick="salvarNickname('${uid}')">Salvar</button>
+            <button onclick="deletarUsuario('${uid}')">Excluir</button>
+          </td>
+        `;
+
+        tbody.appendChild(tr);
+      });
+    }).catch(e => {
+      tbody.innerHTML = '<tr><td colspan="4">Erro ao carregar usuários.</td></tr>';
+      console.error(e);
+    });
+  }
+
+  function salvarNickname(uid) {
+    const input = document.getElementById(`nick-${uid}`);
+    const novoNickname = input.value.trim();
+    if (!novoNickname) {
+      alert('O nickname não pode ser vazio.');
+      return;
+    }
+    db.ref('usuarios/' + uid).update({ nickname: novoNickname })
+      .then(() => alert('Nickname atualizado com sucesso!'))
+      .catch(e => alert('Erro ao atualizar nickname: ' + e.message));
+  }
+
+  function deletarUsuario(uid) {
+    if (!confirm('Tem certeza que quer excluir este usuário?')) return;
+    db.ref('usuarios/' + uid).remove()
+      .then(() => alert('Usuário removido do banco de dados! (Dados auth permanecem)'))
+      .catch(e => alert('Erro ao remover usuário: ' + e.message));
+  }
+
+  // ----------- GERENCIAR VÍDEOS -----------
+
+  function carregarVideos() {
+    const tbody = document.getElementById('videoTableBody');
+    const select = document.getElementById('videoSelect');
+    tbody.innerHTML = '<tr><td colspan="5">Carregando...</td></tr>';
+    select.innerHTML = '<option value="">Carregando vídeos...</option>';
+
+    db.ref('videos').once('value').then(snapshot => {
+      const videos = snapshot.val();
+      tbody.innerHTML = '';
+      select.innerHTML = '<option value="">Selecione um vídeo</option>';
+      if (!videos) {
+        tbody.innerHTML = '<tr><td colspan="5">Nenhum vídeo encontrado.</td></tr>';
+        return;
+      }
+
+      Object.entries(videos).forEach(([key, video]) => {
+        const usuariosCurtiramCount = video.usuariosCurtiram ? Object.keys(video.usuariosCurtiram).length : 0;
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><video src="${video.url}" controls></video></td>
+          <td>${video.autorNickname || 'Anônimo'}</td>
+          <td>${video.curtidas || 0}</td>
+          <td>${usuariosCurtiramCount}</td>
+          <td class="actions">
+            <button onclick="deletarVideo('${key}')">Excluir</button>
+          </td>
+        `;
+
+        tbody.appendChild(tr);
+
+        // Também adiciona no select de vídeos para auto-curtidas
+        const option = document.createElement('option');
+        option.value = key;
+        option.text = `${video.autorNickname || 'Anônimo'} - ${key.substring(0, 6)}`;
+        select.appendChild(option);
+      });
+    }).catch(e => {
+      tbody.innerHTML = '<tr><td colspan="5">Erro ao carregar vídeos.</td></tr>';
+      console.error(e);
+    });
+  }
+
+  function deletarVideo(key) {
+    if (!confirm('Quer mesmo excluir este vídeo?')) return;
+    db.ref('videos/' + key).remove()
+      .then(() => alert('Vídeo excluído com sucesso!'))
+      .catch(e => alert('Erro ao excluir vídeo: ' + e.message));
+  }
+
+  // ----------- AUTO-CURTIDAS SIMPLES -----------
+
+  // Aqui você deve criar um arquivo bots.json no mesmo servidor com formato:
+  /*
+  [
+    { "email": "bot1@example.com", "senha": "senha1" },
+    { "email": "bot2@example.com", "senha": "senha2" },
+    ...
+  ]
+  */
+
+  async function autoCurtir() {
+    const videoKey = document.getElementById('videoSelect').value;
+    const qtdCurtidas = parseInt(document.getElementById('curtidasCount').value);
+
+    if (!videoKey) {
+      alert('Selecione um vídeo para auto-curtir.');
+      return;
+    }
+    if (!qtdCurtidas || qtdCurtidas < 1) {
+      alert('Informe uma quantidade válida de curtidas.');
+      return;
     }
 
-    // Deletar usuário do Realtime Database (apaga só os dados de perfil)
-    function deletarUsuario(uid) {
-      if (!confirm('Tem certeza que quer excluir este usuário? Esta ação não pode ser desfeita.')) return;
+    // Carrega lista bots
+    try {
+      const resp = await fetch('bots.json');
+      if (!resp.ok) throw new Error('Não foi possível carregar bots.json');
+      const bots = await resp.json();
 
-      // Apaga os dados do perfil no Realtime Database
-      db.ref('usuarios/' + uid).remove()
-        .then(() => alert('Usuário removido do banco de dados! (Dados auth permanecem)'))
-        .catch(e => alert('Erro ao remover usuário: ' + e.message));
+      if (!Array.isArray(bots) || bots.length === 0) {
+        alert('Arquivo bots.json está vazio ou inválido.');
+        return;
+      }
+
+      // Limitar curtidas a quantidade de bots disponíveis
+      const maxCurtidas = Math.min(qtdCurtidas, bots.length);
+
+      alert(`Iniciando auto-curtidas com ${maxCurtidas} contas...`);
+
+      for (let i = 0; i < maxCurtidas; i++) {
+        const bot = bots[i];
+        await loginCurtir(bot.email, bot.senha, videoKey);
+        console.log(`Bot ${bot.email} curtiu o vídeo.`);
+        // Delay entre curtidas (ex: 2 segundos)
+        await new Promise(r => setTimeout(r, 2000));
+      }
+
+      alert('Auto-curtidas finalizadas!');
+      carregarVideos();
+    } catch (e) {
+      alert('Erro no auto-curtir: ' + e.message);
+      console.error(e);
     }
+  }
 
-    // Carrega lista ao abrir a página
-    window.onload = () => {
-      carregarUsuarios();
-    };
-  </script>
+  // Função que loga com uma conta, curte o vídeo e desloga
+  async function loginCurtir(email, senha, videoKey) {
+    try {
+      await auth.signOut(); // garante logout antes
+      const cred = await auth.signInWithEmailAndPassword(email, senha);
+
+      const user = cred.user;
+      if (!user) throw new Error('Erro no login do bot');
+
+      // Usa transação para curtir
+      const videoRef = db.ref(`videos/${videoKey}`);
+
+      await videoRef.transaction(video => {
+        if (video) {
+          if (!video.usuariosCurtiram) video.usuariosCurtiram = {};
+          if (video.usuariosCurtiram[user.uid]) {
+            // Já curtiu, não faz nada
+            return;
+          } else {
+            video.curtidas = (video.curtidas || 0) + 1;
+            video.usuariosCurtiram[user.uid] = true;
+          }
+        }
+        return video;
+      });
+
+      await auth.signOut();
+
+    } catch (e) {
+      console.error('Erro bot login/curtir:', e);
+    }
+  }
+
+  // Inicializar listas ao carregar a página
+  window.onload = () => {
+    carregarUsuarios();
+    carregarVideos();
+  };
+</script>
 </body>
 </html>
