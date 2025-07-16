@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chat Global 💬</title>
+  <link rel="stylesheet" href="css/style.css" />
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+  <script src="firebase/firebase.js"></script>
+</head>
+<body id="chatBody">
+  <video id="bgVideo" autoplay muted loop playsinline style="position:fixed; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:-1;"></video>
+
+  <div class="chat-container">
+    <h1 class="logo">🔥 Chat Global</h1>
+
+    <div id="messages" class="chat-box"></div>
+
+    <div class="chat-inputs">
+      <input type="text" id="msgInput" placeholder="Digite sua mensagem..." />
+      <input type="file" id="mediaInput" />
+      <button onclick="enviarMensagem()">Enviar</button>
+    </div>
+  </div>
+
+  <script>
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    const storage = firebase.storage();
+    let userData = null;
+
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        firebase.firestore().collection("usuarios").doc(user.uid).get().then(doc => {
+          userData = doc.data();
+        });
+        ouvirMensagens();
+        carregarWallpaper();
+      } else {
+        alert("Você precisa estar logado para usar o chat.");
+        location.href = "login.html";
+      }
+    });
+
+    function enviarMensagem() {
+      const msg = document.getElementById("msgInput").value;
+      const file = document.getElementById("mediaInput").files[0];
+
+      if (!msg && !file) return;
+
+      if (file) {
+        const fileRef = storage.ref("chatMedia/" + Date.now() + "_" + file.name);
+        fileRef.put(file).then(snapshot => {
+          return snapshot.ref.getDownloadURL();
+        }).then(url => {
+          salvarMensagem(msg, url, file.type);
+        });
+      } else {
+        salvarMensagem(msg, null, null);
+      }
+
+      document.getElementById("msgInput").value = "";
+      document.getElementById("mediaInput").value = "";
+    }
+
+    function salvarMensagem(texto, midiaURL, tipo) {
+      db.collection("chat").add({
+        nome: userData?.nome || "Anônimo",
+        texto: texto,
+        midia: midiaURL || null,
+        tipo: tipo || null,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }
+
+    function ouvirMensagens() {
+      db.collection("chat").orderBy("createdAt").onSnapshot(snapshot => {
+        const messages = document.getElementById("messages");
+        messages.innerHTML = "";
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          const div = document.createElement("div");
+          div.className = "mensagem";
+          div.innerHTML = `<strong>${data.nome}</strong>: ${data.texto || ""}`;
+
+          if (data.midia) {
+            if (data.tipo.startsWith("image")) {
+              div.innerHTML += `<br><img src="${data.midia}" style="max-width: 200px; border-radius: 8px;">`;
+            } else if (data.tipo.startsWith("video")) {
+              div.innerHTML += `<br><video src="${data.midia}" controls style="max-width: 200px; border-radius: 8px;"></video>`;
+            } else if (data.tipo.startsWith("audio")) {
+              div.innerHTML += `<br><audio src="${data.midia}" controls></audio>`;
+            }
+          }
+
+          messages.appendChild(div);
+          messages.scrollTop = messages.scrollHeight;
+        });
+      });
+    }
+
+    function carregarWallpaper() {
+      db.collection("config").doc("chatglobal").onSnapshot(doc => {
+        const data = doc.data();
+        if (data && data.wallpaper) {
+          const bgVideo = document.getElementById("bgVideo");
+          if (data.wallpaper.endsWith(".mp4")) {
+            bgVideo.src = data.wallpaper;
+            bgVideo.style.display = "block";
+          } else {
+            // Imagem de fundo
+            bgVideo.style.display = "none";
+            document.body.style.backgroundImage = `url(${data.wallpaper})`;
+            document.body.style.backgroundSize = "cover";
+            document.body.style.backgroundRepeat = "no-repeat";
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>
