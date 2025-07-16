@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cadastro 🧾</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/gsap.min.js"></script>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+
+  <!-- Seu firebase.js -->
+  <script src="firebase/firebase.js"></script>
+</head>
+<body class="login-page">
+  <div class="login-container">
+    <h1 class="logo">🔥 FireCadastro</h1>
+    <input type="text" id="nome" placeholder="Seu nome" />
+    <input type="email" id="email" placeholder="Seu email" />
+    <input type="password" id="senha" placeholder="Sua senha" />
+    <button onclick="fazerCadastro()">Cadastrar</button>
+    <p id="cadastro-erro" class="erro"></p>
+    <p class="register-link">Já tem conta? <a href="login.html">Entrar</a></p>
+  </div>
+
+  <script>
+    function fazerCadastro() {
+      const nome = document.getElementById("nome").value;
+      const email = document.getElementById("email").value;
+      const senha = document.getElementById("senha").value;
+      const erroEl = document.getElementById("cadastro-erro");
+
+      if (!nome || !email || !senha) {
+        erroEl.textContent = "Preencha todos os campos!";
+        erroEl.style.color = "#ff3c00";
+        return;
+      }
+
+      firebase.auth().createUserWithEmailAndPassword(email, senha)
+        .then((userCredential) => {
+          const user = userCredential.user;
+          return firebase.firestore().collection("usuarios").doc(user.uid).set({
+            nome: nome,
+            email: email,
+            createdAt: new Date()
+          });
+        })
+        .then(() => {
+          window.location.href = "index.html"; // redireciona pro feed
+        })
+        .catch((error) => {
+          erroEl.textContent = "Erro ao cadastrar: " + error.message;
+          erroEl.style.color = "#ff3c00";
+        });
+    }
+
+    // Animação GSAP
+    gsap.from(".login-container", {
+      opacity: 0,
+      y: -100,
+      duration: 1
+    });
+  </script>
+</body>
+</html>
