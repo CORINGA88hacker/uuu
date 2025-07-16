@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login 🔐</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/gsap.min.js"></script>
+</head>
+<body class="login-page">
+  <div class="login-container">
+    <h1 class="logo">🔥 FireLogin</h1>
+    <input type="email" id="email" placeholder="Email" />
+    <input type="password" id="senha" placeholder="Senha" />
+    <button onclick="fazerLogin()">Entrar</button>
+    <p id="login-erro" class="erro"></p>
+    <p class="register-link">Não tem conta? <a href="cadastro.html">Cadastre-se</a></p>
+  </div>
+
+  <script type="module" src="firebase/firebase-config.js"></script>
+  <script type="module">
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { app } from "./firebase/firebase-config.js";
+
+    const auth = getAuth(app);
+
+    window.fazerLogin = () => {
+      const email = document.getElementById("email").value;
+      const senha = document.getElementById("senha").value;
+      const erroEl = document.getElementById("login-erro");
+
+      signInWithEmailAndPassword(auth, email, senha)
+        .then((userCredential) => {
+          location.href = "index.html";
+        })
+        .catch((error) => {
+          erroEl.textContent = "Email ou senha incorretos!";
+          erroEl.style.color = "#ff3c00";
+        });
+    };
+
+    // Animação com GSAP
+    gsap.from(".login-container", {
+      opacity: 0,
+      y: -100,
+      duration: 1
+    });
+  </script>
+</body>
+</html>
