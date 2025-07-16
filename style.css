@@ -73,4 +73,53 @@ button.like {
   50% {
     transform: scale(1.05);
   }
+  .login-page {
+  background-color: #000;
+  color: #fff;
+  font-family: Arial, sans-serif;
+  display: flex;
+  height: 100vh;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-container {
+  background: #111;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 0 10px #ff3c00;
+  width: 300px;
+  text-align: center;
+}
+
+.login-container input {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  background: #000;
+  color: #fff;
+  border: 1px solid #ff3c00;
+  border-radius: 6px;
+}
+
+.login-container button {
+  width: 100%;
+  padding: 10px;
+  background: #ff3c00;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.register-link {
+  margin-top: 15px;
+  font-size: 0.9em;
+}
+
+.register-link a {
+  color: #ff3c00;
+  text-decoration: none;
+}
 }
